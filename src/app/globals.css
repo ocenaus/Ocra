@@ -1,0 +1,139 @@
+@import "tailwindcss";
+@plugin "tailwindcss-animate";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * ORCA design tokens — deep ocean / futuristic Web3 intelligence.
+ * Dark-first: the product lives in a near-black abyssal palette with a
+ * single cyan-blue signal color (sonar/radar), used sparingly.
+ */
+:root {
+  --radius: 0.75rem;
+
+  --background: oklch(0.145 0.02 240);
+  --foreground: oklch(0.94 0.01 230);
+
+  --surface: oklch(0.19 0.025 240);
+  --surface-foreground: oklch(0.94 0.01 230);
+
+  --card: oklch(0.19 0.025 240 / 0.6);
+  --card-foreground: oklch(0.94 0.01 230);
+
+  --popover: oklch(0.19 0.025 240);
+  --popover-foreground: oklch(0.94 0.01 230);
+
+  --primary: oklch(0.75 0.14 220);
+  --primary-foreground: oklch(0.12 0.02 240);
+
+  --secondary: oklch(0.28 0.03 240);
+  --secondary-foreground: oklch(0.94 0.01 230);
+
+  --muted: oklch(0.24 0.02 240);
+  --muted-foreground: oklch(0.66 0.02 230);
+
+  --accent: oklch(0.3 0.06 220);
+  --accent-foreground: oklch(0.94 0.01 230);
+
+  --destructive: oklch(0.62 0.21 25);
+  --destructive-foreground: oklch(0.97 0.01 20);
+
+  --warning: oklch(0.79 0.16 85);
+  --warning-foreground: oklch(0.14 0.02 85);
+
+  --success: oklch(0.72 0.15 155);
+  --success-foreground: oklch(0.12 0.02 155);
+
+  --border: oklch(0.32 0.03 235 / 0.5);
+  --input: oklch(0.32 0.03 235 / 0.6);
+  --ring: oklch(0.75 0.14 220 / 0.6);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --animate-sonar-pulse: sonar-pulse 3s ease-out infinite;
+  --animate-drift: drift 12s ease-in-out infinite;
+
+  @keyframes sonar-pulse {
+    0% {
+      transform: scale(0.6);
+      opacity: 0.5;
+    }
+    100% {
+      transform: scale(2.2);
+      opacity: 0;
+    }
+  }
+  @keyframes drift {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer utilities {
+  /* Frosted glass panel over the ocean-depth background. */
+  .glass-panel {
+    background: color-mix(in oklch, var(--color-surface) 70%, transparent);
+    border: 1px solid var(--color-border);
+    backdrop-filter: blur(16px);
+  }
+
+  /* Deep-ocean gradient background used behind hero/full-page sections. */
+  .ocean-depth {
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, color-mix(in oklch, var(--color-primary) 18%, transparent), transparent),
+      radial-gradient(ellipse 60% 40% at 80% 60%, color-mix(in oklch, var(--color-primary) 8%, transparent), transparent),
+      var(--color-background);
+  }
+
+  .text-glow {
+    text-shadow: 0 0 24px color-mix(in oklch, var(--color-primary) 55%, transparent);
+  }
+}
