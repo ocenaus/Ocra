@@ -10,15 +10,41 @@ import { fetchJson, type ProviderResult } from "@/lib/services/http";
  * fall back to bytecode heuristics — we report the capability fields as
  * unknown rather than guess.
  *
+ * Uses Etherscan's unified V2 API (a single API key works across chains via
+ * `chainid`), which is required for keys issued after Etherscan's V1->V2
+ * migration — the old chain-specific V1 endpoint silently rejects those
+ * keys with an API-level error wrapped in an HTTP 200, which is why this
+ * file treats `status: "0"` as a real failure instead of "not found" (see
+ * below).
+ *
  * Docs referenced:
- *   GET https://api.etherscan.io/api?module=contract&action=getsourcecode&address={addr}&apikey={key}
- *   GET https://api.etherscan.io/api?module=stats&action=tokensupply&contractaddress={addr}&apikey={key}
+ *   GET https://api.etherscan.io/v2/api?chainid=1&module=contract&action=getsourcecode&address={addr}&apikey={key}
+ *   GET https://api.etherscan.io/v2/api?chainid=1&module=stats&action=tokensupply&contractaddress={addr}&apikey={key}
  */
 
-const BASE_URL = "https://api.etherscan.io/api";
+const BASE_URL = "https://api.etherscan.io/v2/api";
+/** Ethereum Mainnet, per Etherscan V2's chainid parameter. */
+const CHAIN_ID = 1;
 
 function isConfigured() {
   return Boolean(serverEnv.ETHERSCAN_API_KEY);
+}
+
+/**
+ * Etherscan wraps API-level errors (bad key, rate limit, bad params) in an
+ * HTTP 200 with `status: "0"`. A *valid* "no verified source" result is
+ * also `status` can be "0" on some legacy paths, so the real signal is
+ * `message === "NOTOK"` (verified-but-empty-source responses report
+ * `message: "OK"`). Missing this distinction is what silently turned real
+ * API errors into a misleading "not found" — this classifies the error so
+ * callers get an accurate reason instead.
+ */
+function classifyApiError(message: string | undefined, resultText: string | undefined): ProviderResult<never> {
+  const detail = resultText || message || "Unknown Etherscan API error";
+  if (/rate limit/i.test(detail)) {
+    return { ok: false, reason: "rate_limited", detail };
+  }
+  return { ok: false, reason: "provider_error", detail };
 }
 
 export interface ContractSource {
@@ -45,9 +71,13 @@ interface EtherscanSourceResponse {
 export async function getContractSource(address: string): Promise<ProviderResult<ContractSource>> {
   if (!isConfigured()) return { ok: false, reason: "not_configured" };
 
-  const url = `${BASE_URL}?module=contract&action=getsourcecode&address=${address}&apikey=${serverEnv.ETHERSCAN_API_KEY}`;
+  const url = `${BASE_URL}?chainid=${CHAIN_ID}&module=contract&action=getsourcecode&address=${address}&apikey=${serverEnv.ETHERSCAN_API_KEY}`;
   const result = await fetchJson<EtherscanSourceResponse>(url);
   if (!result.ok) return result;
+
+  if (result.data.message === "NOTOK") {
+    return classifyApiError(result.data.message, typeof result.data.result === "string" ? result.data.result : undefined);
+  }
 
   const entry = Array.isArray(result.data.result) ? result.data.result[0] : undefined;
   if (!entry) return { ok: false, reason: "not_found" };
@@ -69,16 +99,20 @@ export async function getContractSource(address: string): Promise<ProviderResult
 
 interface EtherscanSupplyResponse {
   status?: string;
+  message?: string;
   result?: string;
 }
 
 export async function getTotalSupply(address: string): Promise<ProviderResult<string>> {
   if (!isConfigured()) return { ok: false, reason: "not_configured" };
 
-  const url = `${BASE_URL}?module=stats&action=tokensupply&contractaddress=${address}&apikey=${serverEnv.ETHERSCAN_API_KEY}`;
+  const url = `${BASE_URL}?chainid=${CHAIN_ID}&module=stats&action=tokensupply&contractaddress=${address}&apikey=${serverEnv.ETHERSCAN_API_KEY}`;
   const result = await fetchJson<EtherscanSupplyResponse>(url);
   if (!result.ok) return result;
 
+  if (result.data.message === "NOTOK") {
+    return classifyApiError(result.data.message, result.data.result);
+  }
   if (result.data.status !== "1" || !result.data.result) {
     return { ok: false, reason: "not_found" };
   }
