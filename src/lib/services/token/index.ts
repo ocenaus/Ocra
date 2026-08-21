@@ -34,7 +34,12 @@ async function resolveMetadata(address: string): Promise<{ metadata: TokenMetada
     };
   }
 
-  gaps.push("Token metadata is not configured — set ALCHEMY_API_KEY or MORALIS_API_KEY.");
+  const bothNotConfigured = primary.reason === "not_configured" && fallback.reason === "not_configured";
+  gaps.push(
+    bothNotConfigured
+      ? "Token metadata is not configured — set ALCHEMY_API_KEY or MORALIS_API_KEY."
+      : "Token metadata is temporarily unavailable from Alchemy and Moralis.",
+  );
   return {
     metadata: { address, name: null, symbol: null, decimals: null, logoUrl: null, totalSupplyRaw: null },
     gaps,
@@ -48,7 +53,15 @@ async function resolvePrice(address: string): Promise<{ price: TokenPrice; gaps:
   const fallback = await alchemy.getTokenPrice(address);
   if (fallback.ok) return { price: fallback.data, gaps: [] };
 
-  return { price: { usdPrice: null, source: null }, gaps: ["Price unavailable."] };
+  const bothNotConfigured = primary.reason === "not_configured" && fallback.reason === "not_configured";
+  return {
+    price: { usdPrice: null, source: null },
+    gaps: [
+      bothNotConfigured
+        ? "Price is not configured — set ALCHEMY_API_KEY or MORALIS_API_KEY."
+        : "Price is temporarily unavailable.",
+    ],
+  };
 }
 
 async function resolveContractAnalysis(address: string): Promise<{ contract: ContractAnalysis; gaps: string[] }> {
