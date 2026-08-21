@@ -16,10 +16,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "ORCA — Crypto Intelligence by Oceanus",
+    default: "ORCA Bubble Map — Token Holder Intelligence by Oceanus",
     template: "%s · ORCA",
   },
-  description: "Track wallets, tokens, whales and on-chain activity with ORCA.",
+  description: "See who really holds an Ethereum token — an interactive holder bubble map with real contract data.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -8,26 +8,26 @@ import { z } from "zod";
  * imported from server-only code (API routes, server components, services).
  * Importing "server-only" here makes an accidental client import fail the
  * build instead of leaking a secret into the browser bundle.
+ *
+ * The bubble map itself needs no auth/DB — Supabase is entirely optional
+ * (kept only for the currently-unused login/signup/diagnostics pages), so
+ * its absence is expected and not logged as a warning. What actually
+ * matters for real data is ALCHEMY_API_KEY / MORALIS_API_KEY /
+ * ETHERSCAN_API_KEY in `serverEnv`; each provider service degrades to an
+ * honest "not configured" result on its own when its key is missing.
  */
 
 const clientSchema = z.object({
-  NEXT_PUBLIC_SUPABASE_URL: z.string().min(1, "NEXT_PUBLIC_SUPABASE_URL is required"),
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1, "NEXT_PUBLIC_SUPABASE_ANON_KEY is required"),
+  NEXT_PUBLIC_SUPABASE_URL: z.string().min(1).optional(),
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1).optional(),
   NEXT_PUBLIC_APP_URL: z.string().min(1).default("http://localhost:3000"),
 });
 
-const clientParsed = clientSchema.safeParse({
+clientSchema.parse({
   NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
   NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
 });
-
-if (!clientParsed.success) {
-  console.warn(
-    "[env] Missing/invalid public environment variables:",
-    clientParsed.error.flatten().fieldErrors,
-  );
-}
 
 export const clientEnv = {
   NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",

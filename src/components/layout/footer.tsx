@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { OrcaWordmark } from "@/components/orca/wordmark";
 
 export function Footer() {
@@ -9,22 +8,14 @@ export function Footer() {
           <OrcaWordmark size="sm" />
           <p>Powered by Oceanus</p>
         </div>
-        <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-          <Link href="/radar" className="hover:text-foreground">
-            Radar
-          </Link>
-          <Link href="/pricing" className="hover:text-foreground">
-            Pricing
-          </Link>
-          <a
-            href="https://etherscan.io"
-            target="_blank"
-            rel="noreferrer noopener"
-            className="hover:text-foreground"
-          >
-            Etherscan
-          </a>
-        </nav>
+        <a
+          href="https://etherscan.io"
+          target="_blank"
+          rel="noreferrer noopener"
+          className="hover:text-foreground"
+        >
+          Etherscan
+        </a>
         <p>© {new Date().getFullYear()} Oceanus. Analytical data, not financial advice.</p>
       </div>
     </footer>

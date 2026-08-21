@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { classifySearchInput } from "@/lib/validation/ethereum";
+import { isValidEthereumAddress, normalizeAddress } from "@/lib/validation/ethereum";
 
 export function OrcaSearchBar({ className }: { className?: string }) {
   const router = useRouter();
@@ -15,18 +15,14 @@ export function OrcaSearchBar({ className }: { className?: string }) {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const trimmed = value.trim();
-    const type = classifySearchInput(trimmed);
 
-    if (type === "invalid") {
-      setError("Enter a valid Ethereum address, token contract, or ENS name.");
+    if (!isValidEthereumAddress(trimmed)) {
+      setError("Enter a valid Ethereum token contract address.");
       return;
     }
 
     setError(null);
-    // Wallet vs. token can't be distinguished from the address alone —
-    // the wallet scanner route detects contract addresses and offers to
-    // open the token view instead.
-    router.push(`/wallet/${trimmed}`);
+    router.push(`/token/${normalizeAddress(trimmed)}`);
   }
 
   return (
@@ -37,13 +33,13 @@ export function OrcaSearchBar({ className }: { className?: string }) {
           <Input
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            placeholder="Search wallet, token contract or ENS..."
+            placeholder="Enter a token contract address (0x...)"
             className="h-12 pl-10 text-base"
-            aria-label="Search wallet, token contract or ENS"
+            aria-label="Token contract address"
           />
         </div>
         <Button type="submit" size="lg" className="h-12">
-          Analyze
+          Map holders
         </Button>
       </div>
       {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
