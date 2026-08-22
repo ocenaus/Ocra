@@ -1,5 +1,6 @@
 import { OrcaLogoMark } from "@/components/orca/wordmark";
 import { OrcaSearchBar } from "@/components/orca/search-bar";
+import { MascotSlot } from "@/components/orca/mascot-slot";
 
 export default function HomePage() {
   return (
@@ -14,6 +15,12 @@ export default function HomePage() {
       </p>
 
       <OrcaSearchBar className="mt-8 w-full max-w-xl" />
+
+      <MascotSlot
+        label="Oceanus Chain badge — awaiting artwork"
+        tone="dark"
+        className="mt-6 size-20 rounded-full"
+      />
     </div>
   );
 }
