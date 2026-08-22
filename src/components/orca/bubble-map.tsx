@@ -147,7 +147,7 @@ export function BubbleMap({
         className="block w-full"
         style={{ maxHeight: HEIGHT }}
         role="img"
-        aria-label="Token holder bubble map"
+        aria-label="Token holder ocean map"
       />
 
       {minPct !== null && maxPct !== null && (

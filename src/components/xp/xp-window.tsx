@@ -19,7 +19,7 @@ interface DragState {
  *    another click).
  *  - maximize: fill the viewport; click again to restore.
  *  - close: while maximized, restores to normal (never removes the window —
- *    Bubble Map / Holder Insights / Contract Analysis are core content).
+ *    Ocean Map / Holder Insights / Contract Analysis are core content).
  *    Otherwise behaves like minimize.
  */
 function TitlebarControls({

@@ -112,7 +112,7 @@ export function Taskbar() {
 
       <span className="flex h-6 items-center gap-1.5 rounded-[3px] border border-white/30 bg-white/15 px-2 text-xs text-white shadow-inner">
         <OrcaLogoMark className="size-3.5" />
-        ORCA — Bubble Map
+        ORCA — Ocean Map
       </span>
 
       <div className="ml-auto flex items-center gap-2.5 rounded-[3px] border border-white/20 bg-white/10 px-2.5 py-1 text-white">

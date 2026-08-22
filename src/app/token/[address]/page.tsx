@@ -14,8 +14,8 @@ type Props = { params: Promise<{ address: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { address } = await params;
   return {
-    title: `Bubble Map — ${address}`,
-    description: `ORCA holder bubble map and contract analysis for ${address}.`,
+    title: `Ocean Map — ${address}`,
+    description: `ORCA holder ocean map and contract analysis for ${address}.`,
   };
 }
 
@@ -57,7 +57,7 @@ export default async function TokenBubbleMapPage({ params }: Props) {
       <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
         <div className="flex flex-col gap-6">
           <XpWindow
-            title="Holder Bubble Map"
+            title="Holder Ocean Map"
             icon={<Waypoints className="size-4 text-white" aria-hidden="true" />}
             contentClassName="bg-[var(--xp-chrome)] p-2"
           >

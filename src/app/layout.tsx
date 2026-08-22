@@ -20,10 +20,10 @@ const pressStart = Press_Start_2P({
 
 export const metadata: Metadata = {
   title: {
-    default: "ORCA Bubble Map — Token Holder Intelligence by Oceanus",
+    default: "ORCA Ocean Map — Token Holder Intelligence by Oceanus",
     template: "%s · ORCA",
   },
-  description: "See who really holds an Ethereum token — an interactive holder bubble map with real contract data.",
+  description: "See who really holds an Ethereum token — an interactive holder ocean map with real contract data.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
