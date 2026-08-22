@@ -2,43 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Bell,
-  CircleGauge,
-  FileCode2,
-  FileText,
-  HelpCircle,
-  Settings,
-  Users,
-  Wallet,
-  Waypoints,
-} from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface NavItem {
-  label: string;
-  href?: string;
-  icon: typeof Waypoints;
-  isActive?: (pathname: string) => boolean;
-}
-
-const NAV_ITEMS: NavItem[] = [
-  { label: "ORCA Home", href: "/", icon: CircleGauge, isActive: (p) => p === "/" },
-  { label: "Bubble Map", href: "/", icon: Waypoints, isActive: (p) => p === "/" || p.startsWith("/token") },
-  { label: "Top Holders", icon: Users },
-  { label: "Wallets", icon: Wallet },
-  { label: "Contract", icon: FileCode2 },
-  { label: "Alerts", icon: Bell },
-  { label: "Settings", icon: Settings },
-  { label: "Documentation", icon: FileText },
-  { label: "About ORCA", icon: HelpCircle },
-];
+import { NAV_ITEMS } from "@/components/xp/nav-items";
 
 /**
- * Classic XP-style left sidebar. Only "ORCA Home" and "Bubble Map" point at
- * real functionality today; the rest are visibly disabled placeholders
- * (muted, "Soon" tag, no href) rather than links that go nowhere — ORCA
- * never presents an unbuilt feature as a working one.
+ * Classic XP-style left sidebar. See nav-items.ts for which entries are real
+ * vs. disabled placeholders.
  */
 export function Sidebar({ className }: { className?: string }) {
   const pathname = usePathname();

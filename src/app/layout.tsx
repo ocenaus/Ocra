@@ -3,7 +3,7 @@ import { Geist_Mono, Press_Start_2P } from "next/font/google";
 import "./globals.css";
 import { Sidebar } from "@/components/xp/sidebar";
 import { Taskbar } from "@/components/xp/taskbar";
-import { TitlebarControls } from "@/components/xp/xp-window";
+import { DecorativeTitlebarControls } from "@/components/xp/decorative-titlebar-controls";
 import { OrcaLogoMark, OrcaWordmark } from "@/components/orca/wordmark";
 import { MascotSlot } from "@/components/orca/mascot-slot";
 
@@ -42,7 +42,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <OrcaLogoMark className="size-4 shrink-0" />
               <span className="truncate">ORCA by Oceanus chain</span>
             </div>
-            <TitlebarControls />
+            <DecorativeTitlebarControls />
           </div>
 
           <div className="flex items-center justify-between gap-3 border-b border-border bg-[var(--xp-chrome)] px-4 py-2">
