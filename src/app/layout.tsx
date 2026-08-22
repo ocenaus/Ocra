@@ -59,7 +59,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
 
           <div className="flex min-h-0 flex-1">
             <Sidebar className="hidden sm:flex" />
-            <main className="min-w-0 flex-1 bg-[var(--color-background)] p-4 sm:p-6">{children}</main>
+            <main className="flex min-w-0 flex-1 flex-col bg-[var(--color-background)] p-4 sm:p-6">{children}</main>
           </div>
         </div>
 
