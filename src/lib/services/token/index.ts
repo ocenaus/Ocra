@@ -3,9 +3,11 @@ import * as moralis from "@/lib/services/moralis/client";
 import * as alchemy from "@/lib/services/alchemy/client";
 import * as etherscan from "@/lib/services/etherscan/client";
 import * as dexscreener from "@/lib/services/dexscreener/client";
+import * as coingecko from "@/lib/services/coingecko/client";
 import { analyzeCapabilities } from "@/lib/services/etherscan/capabilities";
 import { computeMarketCapUsd, computePercentageOfSupply } from "@/lib/services/token/math";
 import type {
+  CoinGeckoData,
   ContractAnalysis,
   HolderEntry,
   TokenDetails,
@@ -172,14 +174,41 @@ async function resolveSocials(address: string): Promise<TokenSocials> {
   };
 }
 
+/**
+ * CoinGecko coverage isn't universal — plenty of small/new tokens simply
+ * aren't indexed there. That's a normal outcome, not a provider failure, so
+ * `not_found` resolves to `coingecko: null` silently (the UI just omits
+ * those sections) rather than being reported as a data gap.
+ */
+async function resolveCoinGecko(address: string): Promise<{ coingecko: CoinGeckoData | null; gaps: string[] }> {
+  const result = await coingecko.getTokenData(address);
+  if (result.ok) return { coingecko: result.data, gaps: [] };
+  if (result.reason === "not_found") return { coingecko: null, gaps: [] };
+
+  return {
+    coingecko: null,
+    gaps: [
+      result.reason === "not_configured"
+        ? "Extended market data is not configured — set COINGECKO_API_KEY."
+        : "Extended market data is temporarily unavailable from CoinGecko.",
+    ],
+  };
+}
+
 export async function getTokenDetails(address: string): Promise<TokenDetails> {
-  const [{ metadata, gaps: metadataGaps }, { price, gaps: priceGaps }, { contract, gaps: contractGaps }, socials] =
-    await Promise.all([
-      resolveMetadata(address),
-      resolvePrice(address),
-      resolveContractAnalysis(address),
-      resolveSocials(address),
-    ]);
+  const [
+    { metadata, gaps: metadataGaps },
+    { price, gaps: priceGaps },
+    { contract, gaps: contractGaps },
+    socials,
+    { coingecko: coingeckoData, gaps: coingeckoGaps },
+  ] = await Promise.all([
+    resolveMetadata(address),
+    resolvePrice(address),
+    resolveContractAnalysis(address),
+    resolveSocials(address),
+    resolveCoinGecko(address),
+  ]);
 
   const marketCapUsd = computeMarketCapUsd(price.usdPrice, metadata.totalSupplyRaw, metadata.decimals);
 
@@ -191,7 +220,8 @@ export async function getTokenDetails(address: string): Promise<TokenDetails> {
     totalHoldersCount: null, // populated by the holders endpoint, kept separate to avoid a second heavy call here
     contract,
     socials,
-    dataGaps: [...metadataGaps, ...priceGaps, ...contractGaps],
+    coingecko: coingeckoData,
+    dataGaps: [...metadataGaps, ...priceGaps, ...contractGaps, ...coingeckoGaps],
   };
 }
 

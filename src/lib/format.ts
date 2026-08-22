@@ -20,6 +20,13 @@ export function formatPercentage(value: number | null): string {
   return `${value.toFixed(2)}%`;
 }
 
+/** Signed percentage change (e.g. "+4.21%" / "-1.03%"), for price-change figures rather than supply shares. */
+export function formatPriceChangePercent(value: number | null): string {
+  if (value === null) return "—";
+  const sign = value > 0 ? "+" : "";
+  return `${sign}${value.toFixed(2)}%`;
+}
+
 export function formatCompactNumber(value: number | null): string {
   if (value === null) return "Data unavailable";
   return new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 2 }).format(value);
