@@ -54,7 +54,6 @@ export default async function DiagnosticsPage() {
     { label: "Alchemy", ok: providers.alchemy, detail: providers.alchemy ? "Configured" : "Missing ALCHEMY_API_KEY — required for Phase 2" },
     { label: "Moralis", ok: providers.moralis, detail: providers.moralis ? "Configured" : "Missing MORALIS_API_KEY — required for Phase 2" },
     { label: "Etherscan", ok: providers.etherscan, detail: providers.etherscan ? "Configured" : "Missing ETHERSCAN_API_KEY — optional" },
-    { label: "CoinGecko", ok: providers.coingecko, detail: providers.coingecko ? "Configured" : "Missing COINGECKO_API_KEY — optional" },
     { label: "Telegram alerts", ok: providers.telegram, detail: providers.telegram ? "Configured" : "Missing TELEGRAM_BOT_TOKEN — required for Phase 11" },
   ];
 

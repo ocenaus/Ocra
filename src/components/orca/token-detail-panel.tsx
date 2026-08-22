@@ -5,9 +5,6 @@ import { XpWindow } from "@/components/xp/xp-window";
 import { MascotSlot } from "@/components/orca/mascot-slot";
 import { QuickLinks } from "@/components/orca/quick-links";
 import { SocialLinks } from "@/components/orca/social-links";
-import { Stat } from "@/components/orca/stat";
-import { MarketData } from "@/components/orca/market-data";
-import { CoinInfoPanel } from "@/components/orca/coin-info";
 import type { TokenDetails } from "@/lib/services/types";
 import { formatUsd, shortenAddress } from "@/lib/format";
 
@@ -68,9 +65,6 @@ export function TokenDetailPanel({
           <SocialLinks socials={details.socials} />
         </CardContent>
       </Card>
-
-      <MarketData coingecko={details.coingecko} />
-      <CoinInfoPanel coingecko={details.coingecko} />
 
       <XpWindow title="Contract Analysis" icon={<FileCode2 className="size-4 text-white" aria-hidden="true" />}>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -148,6 +142,15 @@ export function TokenDetailPanel({
         Contract capability flags are derived from a text scan of verified source code and are an
         analytical signal, not a guarantee — always verify independently before trusting a contract.
       </p>
+    </div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0">
+      <p className="text-xs tracking-wide text-muted-foreground uppercase">{label}</p>
+      <p className="text-sm font-semibold text-foreground break-words">{value}</p>
     </div>
   );
 }

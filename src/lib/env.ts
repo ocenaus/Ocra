@@ -55,7 +55,6 @@ export const serverEnv = {
   ALCHEMY_API_KEY: process.env.ALCHEMY_API_KEY ?? "",
   MORALIS_API_KEY: process.env.MORALIS_API_KEY ?? "",
   ETHERSCAN_API_KEY: process.env.ETHERSCAN_API_KEY ?? "",
-  COINGECKO_API_KEY: process.env.COINGECKO_API_KEY ?? "",
   TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN ?? "",
   OCS_CONTRACT_ADDRESS: process.env.OCS_CONTRACT_ADDRESS ?? "",
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY ?? "",
@@ -69,7 +68,6 @@ export function getProviderStatus() {
     alchemy: Boolean(serverEnv.ALCHEMY_API_KEY),
     moralis: Boolean(serverEnv.MORALIS_API_KEY),
     etherscan: Boolean(serverEnv.ETHERSCAN_API_KEY),
-    coingecko: Boolean(serverEnv.COINGECKO_API_KEY),
     telegram: Boolean(serverEnv.TELEGRAM_BOT_TOKEN),
   };
 }
