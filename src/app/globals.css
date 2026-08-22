@@ -1,52 +1,64 @@
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
 
-@custom-variant dark (&:is(.dark *));
-
 /*
- * ORCA design tokens — deep ocean / futuristic Web3 intelligence.
- * Dark-first: the product lives in a near-black abyssal palette with a
- * single cyan-blue signal color (sonar/radar), used sparingly.
+ * ORCA design tokens — Windows XP / Luna-style desktop aesthetic.
+ * Single fixed light theme: bright blue/white chrome over a sky-and-grass
+ * desktop backdrop, in the spirit of the classic XP "Luna" theme.
  */
 :root {
-  --radius: 0.75rem;
+  --radius: 0.375rem;
 
-  --background: oklch(0.145 0.02 240);
-  --foreground: oklch(0.94 0.01 230);
+  --background: oklch(0.93 0.03 235);
+  --foreground: oklch(0.24 0.04 255);
 
-  --surface: oklch(0.19 0.025 240);
-  --surface-foreground: oklch(0.94 0.01 230);
+  --surface: oklch(0.99 0.004 90);
+  --surface-foreground: var(--foreground);
 
-  --card: oklch(0.19 0.025 240 / 0.6);
-  --card-foreground: oklch(0.94 0.01 230);
+  --card: oklch(0.99 0.004 90);
+  --card-foreground: var(--foreground);
 
-  --popover: oklch(0.19 0.025 240);
-  --popover-foreground: oklch(0.94 0.01 230);
+  --popover: oklch(0.99 0.004 90);
+  --popover-foreground: var(--foreground);
 
-  --primary: oklch(0.75 0.14 220);
-  --primary-foreground: oklch(0.12 0.02 240);
+  --primary: oklch(0.53 0.19 258);
+  --primary-foreground: oklch(0.99 0.005 90);
 
-  --secondary: oklch(0.28 0.03 240);
-  --secondary-foreground: oklch(0.94 0.01 230);
+  --secondary: oklch(0.93 0.012 90);
+  --secondary-foreground: var(--foreground);
 
-  --muted: oklch(0.24 0.02 240);
-  --muted-foreground: oklch(0.66 0.02 230);
+  --muted: oklch(0.92 0.012 90);
+  --muted-foreground: oklch(0.46 0.03 255);
 
-  --accent: oklch(0.3 0.06 220);
-  --accent-foreground: oklch(0.94 0.01 230);
+  --accent: oklch(0.87 0.05 230);
+  --accent-foreground: var(--foreground);
 
-  --destructive: oklch(0.62 0.21 25);
-  --destructive-foreground: oklch(0.97 0.01 20);
+  --destructive: oklch(0.57 0.22 25);
+  --destructive-foreground: oklch(0.99 0.01 20);
 
-  --warning: oklch(0.79 0.16 85);
-  --warning-foreground: oklch(0.14 0.02 85);
+  --warning: oklch(0.74 0.15 78);
+  --warning-foreground: oklch(0.24 0.06 78);
 
-  --success: oklch(0.72 0.15 155);
-  --success-foreground: oklch(0.12 0.02 155);
+  --success: oklch(0.6 0.16 148);
+  --success-foreground: oklch(0.99 0.02 148);
 
-  --border: oklch(0.32 0.03 235 / 0.5);
-  --input: oklch(0.32 0.03 235 / 0.6);
-  --ring: oklch(0.75 0.14 220 / 0.6);
+  --border: oklch(0.72 0.025 240);
+  --input: oklch(0.88 0.015 90);
+  --ring: oklch(0.53 0.19 258 / 0.55);
+
+  /* XP-specific chrome colors, not part of the shadcn token set. */
+  --xp-titlebar-from: #2f80f0;
+  --xp-titlebar-via: #1457d6;
+  --xp-titlebar-to: #0a3aa0;
+  --xp-titlebar-text: #ffffff;
+  --xp-chrome: #ece9d8;
+  --xp-chrome-border: #0a3aa0;
+  --xp-sky-top: #2f7fe0;
+  --xp-sky-mid: #74b4ef;
+  --xp-sky-low: #cde8fb;
+  --xp-sky-horizon: #eef8ff;
+  --xp-grass-light: #8fd35a;
+  --xp-grass-dark: #4f9c2e;
 }
 
 @theme inline {
@@ -76,33 +88,20 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 8px);
 
-  --font-sans: var(--font-geist-sans);
+  --font-sans: Tahoma, Verdana, "Segoe UI", ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
+  --font-pixel: var(--font-press-start), var(--font-sans);
 
-  --animate-sonar-pulse: sonar-pulse 3s ease-out infinite;
-  --animate-drift: drift 12s ease-in-out infinite;
+  --animate-blink: blink 1s step-start infinite;
 
-  @keyframes sonar-pulse {
-    0% {
-      transform: scale(0.6);
-      opacity: 0.5;
-    }
-    100% {
-      transform: scale(2.2);
-      opacity: 0;
-    }
-  }
-  @keyframes drift {
-    0%, 100% {
-      transform: translateY(0px);
-    }
+  @keyframes blink {
     50% {
-      transform: translateY(-10px);
+      opacity: 0;
     }
   }
 }
@@ -118,22 +117,75 @@ body {
 }
 
 @layer utilities {
-  /* Frosted glass panel over the ocean-depth background. */
-  .glass-panel {
-    background: color-mix(in oklch, var(--color-surface) 70%, transparent);
+  /* The full desktop backdrop: XP "Bliss"-style sky-into-grass gradient. */
+  .xp-desktop {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(
+      to bottom,
+      var(--xp-sky-top) 0%,
+      var(--xp-sky-mid) 45%,
+      var(--xp-sky-low) 72%,
+      var(--xp-sky-horizon) 100%
+    );
+  }
+
+  .xp-desktop::before {
+    content: "";
+    position: absolute;
+    left: -15%;
+    right: -15%;
+    bottom: -30%;
+    height: 60%;
+    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    background: linear-gradient(to bottom, var(--xp-grass-light) 0%, var(--xp-grass-dark) 65%, #2f6b1c 100%);
+    box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.08) inset;
+  }
+
+  .xp-desktop::after {
+    content: "";
+    position: absolute;
+    left: -25%;
+    right: 5%;
+    bottom: -42%;
+    height: 55%;
+    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    background: linear-gradient(to bottom, var(--xp-grass-dark) 0%, #2f6b1c 100%);
+    opacity: 0.65;
+  }
+
+  /* Frosted light panel — replaces the old dark glass-panel treatment. */
+  .xp-glass {
+    background: color-mix(in oklch, var(--color-surface) 88%, transparent);
     border: 1px solid var(--color-border);
-    backdrop-filter: blur(16px);
+    backdrop-filter: blur(10px);
   }
 
-  /* Deep-ocean gradient background used behind hero/full-page sections. */
-  .ocean-depth {
-    background:
-      radial-gradient(ellipse 80% 50% at 50% -10%, color-mix(in oklch, var(--color-primary) 18%, transparent), transparent),
-      radial-gradient(ellipse 60% 40% at 80% 60%, color-mix(in oklch, var(--color-primary) 8%, transparent), transparent),
-      var(--color-background);
+  /* Sunken XP "well" border, used for input fields and inset content areas. */
+  .xp-inset {
+    border: 1px solid #7f9db6;
+    border-top-color: #4a6d8c;
+    border-left-color: #4a6d8c;
+    background: var(--color-surface);
+    box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.12);
   }
 
-  .text-glow {
-    text-shadow: 0 0 24px color-mix(in oklch, var(--color-primary) 55%, transparent);
+  /* Luna-blue title bar gradient used by XpWindow and the outer app chrome. */
+  .xp-titlebar-gradient {
+    background: linear-gradient(
+      to bottom,
+      var(--xp-titlebar-from) 0%,
+      var(--xp-titlebar-via) 45%,
+      var(--xp-titlebar-via) 60%,
+      var(--xp-titlebar-to) 100%
+    );
+  }
+
+  .xp-taskbar-gradient {
+    background: linear-gradient(to bottom, #2a86ea 0%, #1457d6 8%, #1349b8 92%, #0c3a94 100%);
+  }
+
+  .xp-start-gradient {
+    background: linear-gradient(to bottom, #6fce55 0%, #4ea82e 45%, #3a8a1f 55%, #2f7a17 100%);
   }
 }

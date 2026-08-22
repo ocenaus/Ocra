@@ -1,6 +1,8 @@
-import { AlertTriangle, CheckCircle2, HelpCircle, XCircle } from "lucide-react";
+import { AlertTriangle, CheckCircle2, FileCode2, HelpCircle, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { XpWindow } from "@/components/xp/xp-window";
+import { MascotSlot } from "@/components/orca/mascot-slot";
 import { QuickLinks } from "@/components/orca/quick-links";
 import { SocialLinks } from "@/components/orca/social-links";
 import type { TokenDetails } from "@/lib/services/types";
@@ -51,7 +53,7 @@ export function TokenDetailPanel({
           </div>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-3 gap-3">
             <Stat label="Price" value={formatUsd(price.usdPrice)} />
             <Stat label="Market cap (est.)" value={formatUsd(details.marketCapUsd)} />
             <Stat
@@ -64,65 +66,64 @@ export function TokenDetailPanel({
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm tracking-widest text-muted-foreground uppercase">
-            Contract analysis
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          <div className="flex flex-wrap items-center gap-2">
-            {contract.isVerified === null ? (
-              <Badge variant="outline" className="gap-1.5">
-                <HelpCircle className="size-3" /> Verification unknown
-              </Badge>
-            ) : contract.isVerified ? (
-              <Badge variant="success" className="gap-1.5">
-                <CheckCircle2 className="size-3" /> Contract verified
-              </Badge>
-            ) : (
-              <Badge variant="destructive" className="gap-1.5">
-                <XCircle className="size-3" /> Contract not verified
-              </Badge>
-            )}
-            {contract.isProxy && <Badge variant="warning">Upgradeable proxy</Badge>}
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <p className="text-xs tracking-wide text-muted-foreground uppercase">Owner</p>
-              <p className="font-mono text-sm text-foreground">
-                {contract.isOwnershipRenounced
-                  ? "Renounced"
-                  : contract.ownerAddress
-                    ? shortenAddress(contract.ownerAddress)
-                    : "Data unavailable"}
-              </p>
+      <XpWindow title="Contract Analysis" icon={<FileCode2 className="size-4 text-white" aria-hidden="true" />}>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex flex-1 flex-col gap-4">
+            <div className="flex flex-wrap items-center gap-2">
+              {contract.isVerified === null ? (
+                <Badge variant="outline" className="gap-1.5">
+                  <HelpCircle className="size-3" /> Verification unknown
+                </Badge>
+              ) : contract.isVerified ? (
+                <Badge variant="success" className="gap-1.5">
+                  <CheckCircle2 className="size-3" /> Contract verified
+                </Badge>
+              ) : (
+                <Badge variant="destructive" className="gap-1.5">
+                  <XCircle className="size-3" /> Contract not verified
+                </Badge>
+              )}
+              {contract.isProxy && <Badge variant="warning">Upgradeable proxy</Badge>}
             </div>
-            {contract.implementationAddress && (
+
+            <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <p className="text-xs tracking-wide text-muted-foreground uppercase">Implementation</p>
+                <p className="text-xs tracking-wide text-muted-foreground uppercase">Owner</p>
                 <p className="font-mono text-sm text-foreground">
-                  {shortenAddress(contract.implementationAddress)}
+                  {contract.isOwnershipRenounced
+                    ? "Renounced"
+                    : contract.ownerAddress
+                      ? shortenAddress(contract.ownerAddress)
+                      : "Data unavailable"}
                 </p>
               </div>
-            )}
-            {contract.creatorAddress && (
-              <div>
-                <p className="text-xs tracking-wide text-muted-foreground uppercase">Contract creator</p>
-                <p className="font-mono text-sm text-foreground">{shortenAddress(contract.creatorAddress)}</p>
-              </div>
-            )}
+              {contract.implementationAddress && (
+                <div>
+                  <p className="text-xs tracking-wide text-muted-foreground uppercase">Implementation</p>
+                  <p className="font-mono text-sm text-foreground">
+                    {shortenAddress(contract.implementationAddress)}
+                  </p>
+                </div>
+              )}
+              {contract.creatorAddress && (
+                <div>
+                  <p className="text-xs tracking-wide text-muted-foreground uppercase">Contract creator</p>
+                  <p className="font-mono text-sm text-foreground">{shortenAddress(contract.creatorAddress)}</p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <TriStateBadge label="Mint" value={contract.hasMintFunction} />
+              <TriStateBadge label="Burn" value={contract.hasBurnFunction} />
+              <TriStateBadge label="Pause" value={contract.hasPauseFunction} />
+              <TriStateBadge label="Blacklist" value={contract.hasBlacklistFunction} />
+            </div>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <TriStateBadge label="Mint" value={contract.hasMintFunction} />
-            <TriStateBadge label="Burn" value={contract.hasBurnFunction} />
-            <TriStateBadge label="Pause" value={contract.hasPauseFunction} />
-            <TriStateBadge label="Blacklist" value={contract.hasBlacklistFunction} />
-          </div>
-        </CardContent>
-      </Card>
+          <MascotSlot label="Mascot artwork pending" tone="dark" className="hidden h-32 w-24 shrink-0 sm:flex" />
+        </div>
+      </XpWindow>
 
       {details.dataGaps.length > 0 && (
         <Card>
@@ -147,9 +148,9 @@ export function TokenDetailPanel({
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div>
+    <div className="min-w-0">
       <p className="text-xs tracking-wide text-muted-foreground uppercase">{label}</p>
-      <p className="text-lg font-semibold text-foreground">{value}</p>
+      <p className="text-sm font-semibold text-foreground break-words">{value}</p>
     </div>
   );
 }

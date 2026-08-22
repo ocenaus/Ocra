@@ -39,7 +39,7 @@ export function OrcaSearchBar({ className }: { className?: string }) {
           />
         </div>
         <Button type="submit" size="lg" className="h-12">
-          Map holders
+          Map Holders
         </Button>
       </div>
       {error && <p className="mt-2 text-sm text-destructive">{error}</p>}

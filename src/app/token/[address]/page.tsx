@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { AlertTriangle, ExternalLink } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AlertTriangle, ExternalLink, Waypoints } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { XpWindow } from "@/components/xp/xp-window";
 import { NotConfiguredPanel } from "@/components/orca/not-configured";
 import { BubbleMap } from "@/components/orca/bubble-map";
 import { HolderInsights } from "@/components/orca/holder-insights";
@@ -56,27 +56,24 @@ export default async function TokenBubbleMapPage({ params }: Props) {
 
       <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
         <div className="flex flex-col gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm tracking-widest text-muted-foreground uppercase">
-                Holder Bubble Map
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {holders.length > 0 ? (
-                <BubbleMap
-                  holders={holders}
-                  symbol={details.metadata.symbol}
-                  creatorAddress={details.contract.creatorAddress}
-                />
-              ) : (
-                <NotConfiguredPanel
-                  title={holderGaps[0] ?? "No holder data available."}
-                  description="ORCA never shows placeholder or fabricated holder positions — this panel stays empty until real data is available."
-                />
-              )}
-            </CardContent>
-          </Card>
+          <XpWindow
+            title="Holder Bubble Map"
+            icon={<Waypoints className="size-4 text-white" aria-hidden="true" />}
+            contentClassName="bg-[var(--xp-chrome)] p-2"
+          >
+            {holders.length > 0 ? (
+              <BubbleMap
+                holders={holders}
+                symbol={details.metadata.symbol}
+                creatorAddress={details.contract.creatorAddress}
+              />
+            ) : (
+              <NotConfiguredPanel
+                title={holderGaps[0] ?? "No holder data available."}
+                description="ORCA never shows placeholder or fabricated holder positions — this panel stays empty until real data is available."
+              />
+            )}
+          </XpWindow>
 
           <HolderInsights holders={holders} />
         </div>

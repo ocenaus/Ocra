@@ -5,21 +5,24 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 outline-none focus-visible:ring-2 focus-visible:ring-ring [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-[4px] border text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 outline-none focus-visible:ring-2 focus-visible:ring-ring [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground shadow-[0_0_20px_-4px_var(--color-primary)] hover:brightness-110",
-        destructive: "bg-destructive text-destructive-foreground hover:brightness-110",
-        outline: "border border-border bg-transparent hover:bg-secondary",
-        secondary: "bg-secondary text-secondary-foreground hover:brightness-110",
-        ghost: "hover:bg-secondary/60",
-        link: "text-primary underline-offset-4 hover:underline",
+        default:
+          "border-[#0a3aa0] bg-gradient-to-b from-[#5fa8f5] via-[#2f7fe6] to-[#1152c4] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.5),0_2px_4px_rgba(10,30,80,0.3)] hover:brightness-105 active:brightness-95",
+        destructive:
+          "border-[#8a1f10] bg-gradient-to-b from-[#f28a7a] to-[#c22a1a] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.5)] hover:brightness-105",
+        outline: "border-border bg-white text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] hover:bg-secondary",
+        secondary:
+          "border-border bg-gradient-to-b from-white to-secondary text-secondary-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] hover:brightness-105",
+        ghost: "border-transparent hover:bg-secondary/60",
+        link: "border-transparent text-primary underline-offset-4 hover:underline",
       },
       size: {
         default: "h-10 px-5 py-2",
-        sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-12 rounded-md px-8 text-base",
+        sm: "h-8 px-3 text-xs",
+        lg: "h-12 px-8 text-base",
         icon: "size-9",
       },
     },

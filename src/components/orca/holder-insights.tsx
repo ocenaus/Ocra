@@ -1,5 +1,5 @@
-import { AlertTriangle } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AlertTriangle, Gauge } from "lucide-react";
+import { XpWindow } from "@/components/xp/xp-window";
 import { Badge } from "@/components/ui/badge";
 import { computeHolderConcentration, CONCENTRATION_THRESHOLDS } from "@/lib/services/token/math";
 import { formatPercentage } from "@/lib/format";
@@ -20,13 +20,8 @@ export function HolderInsights({ holders }: { holders: HolderEntry[] }) {
   const includesContracts = holders.slice(0, 10).some((h) => h.isContract);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-sm tracking-widest text-muted-foreground uppercase">
-          Holder Insights
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-3">
+    <XpWindow title="Holder Insights" icon={<Gauge className="size-4 text-white" aria-hidden="true" />}>
+      <div className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center gap-2 text-sm text-foreground">
           <span>
             Top holder controls{" "}
@@ -56,7 +51,7 @@ export function HolderInsights({ holders }: { holders: HolderEntry[] }) {
             : "Concentration is below ORCA's analytical thresholds — this is a heuristic, not a guarantee of safety."}
           {includesContracts && " Figures include contract addresses (e.g. liquidity pools) among the top holders, not only individual wallets."}
         </p>
-      </CardContent>
-    </Card>
+      </div>
+    </XpWindow>
   );
 }
