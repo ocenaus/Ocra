@@ -1,6 +1,6 @@
+import Image from "next/image";
 import { OrcaLogoMark } from "@/components/orca/wordmark";
 import { OrcaSearchBar } from "@/components/orca/search-bar";
-import { OceanusChainBadge } from "@/components/orca/oceanus-badge";
 
 export default function HomePage() {
   return (
@@ -18,7 +18,13 @@ export default function HomePage() {
         <OrcaSearchBar className="mt-8 w-full max-w-xl" />
       </div>
 
-      <OceanusChainBadge className="size-20 shrink-0" />
+      <Image
+        src="/oceanus-badge.png"
+        alt="Powered by Oceanus Chain"
+        width={200}
+        height={200}
+        className="size-20 shrink-0"
+      />
     </div>
   );
 }
