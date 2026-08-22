@@ -1,6 +1,6 @@
 import { OrcaLogoMark } from "@/components/orca/wordmark";
 import { OrcaSearchBar } from "@/components/orca/search-bar";
-import { MascotSlot } from "@/components/orca/mascot-slot";
+import { OceanusChainBadge } from "@/components/orca/oceanus-badge";
 
 export default function HomePage() {
   return (
@@ -18,11 +18,7 @@ export default function HomePage() {
         <OrcaSearchBar className="mt-8 w-full max-w-xl" />
       </div>
 
-      <MascotSlot
-        label="Oceanus Chain badge — awaiting artwork"
-        tone="dark"
-        className="size-20 shrink-0 rounded-full"
-      />
+      <OceanusChainBadge className="size-20 shrink-0" />
     </div>
   );
 }
