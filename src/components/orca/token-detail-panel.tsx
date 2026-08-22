@@ -53,7 +53,7 @@ export function TokenDetailPanel({
           </div>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             <Stat label="Price" value={formatUsd(price.usdPrice)} />
             <Stat label="Market cap (est.)" value={formatUsd(details.marketCapUsd)} />
             <Stat

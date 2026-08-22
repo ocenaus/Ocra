@@ -29,17 +29,18 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${geistMono.variable} ${pressStart.variable} h-full antialiased`}>
-      <body className="xp-desktop relative flex min-h-full flex-col items-center px-3 pt-6 pb-14 sm:px-6">
+      <body className="relative flex min-h-full flex-col items-center bg-[var(--xp-sky-horizon)] px-3 pt-6 pb-14 sm:px-6">
+        <div className="xp-desktop fixed inset-0 -z-10 overflow-hidden" aria-hidden="true" />
         <MascotSlot
           label="Mascot artwork pending — full-body orca on the grass"
-          className="pointer-events-none absolute bottom-20 left-8 hidden h-56 w-32 2xl:flex"
+          className="pointer-events-none fixed bottom-20 left-8 hidden h-56 w-32 2xl:flex"
         />
 
         <div className="relative z-10 flex w-full max-w-6xl flex-1 flex-col overflow-hidden rounded-[8px] border border-[#0a3aa0] shadow-[0_18px_50px_rgba(6,20,55,0.45)]">
           <div className="xp-titlebar-gradient flex items-center justify-between gap-2 px-3 py-1.5">
             <div className="flex min-w-0 items-center gap-2 text-sm font-semibold text-white">
               <OrcaLogoMark className="size-4 shrink-0" />
-              <span className="truncate">ORCA — Powered by Oceanus</span>
+              <span className="truncate">ORCA by Oceanus chain</span>
             </div>
             <TitlebarControls />
           </div>

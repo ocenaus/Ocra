@@ -9,9 +9,8 @@ export default function HomePage() {
         ORCA
       </h1>
       <p className="mt-3 text-lg font-semibold text-primary sm:text-xl">See who owns the ocean.</p>
-      <p className="mt-4 max-w-xl text-sm text-balance text-muted-foreground sm:text-base">
-        Enter an Ethereum token contract address to see who really holds it — top holders sized by
-        share of supply, plus real contract details.
+      <p className="mt-4 text-sm font-medium text-muted-foreground sm:text-base">
+        Enter an Ethereum token contract address
       </p>
 
       <OrcaSearchBar className="mt-8 w-full max-w-xl" />

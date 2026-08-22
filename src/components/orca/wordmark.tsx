@@ -44,7 +44,7 @@ export function OrcaWordmark({
         <span className={cn("font-pixel tracking-tight text-foreground", textSize)}>ORCA</span>
         {withTagline && (
           <span className="text-[10px] font-medium tracking-widest text-muted-foreground uppercase">
-            Powered by Oceanus
+            by Oceanus chain
           </span>
         )}
       </div>

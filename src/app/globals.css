@@ -117,10 +117,11 @@ body {
 }
 
 @layer utilities {
-  /* The full desktop backdrop: XP "Bliss"-style sky-into-grass gradient. */
+  /* The full desktop backdrop: XP "Bliss"-style sky-into-grass gradient.
+     Applied to a dedicated fixed layer, never to body/html — overflow:hidden
+     here only clips this layer's own decorative shapes, and never blocks
+     the document's own scrolling. */
   .xp-desktop {
-    position: relative;
-    overflow: hidden;
     background: linear-gradient(
       to bottom,
       var(--xp-sky-top) 0%,
