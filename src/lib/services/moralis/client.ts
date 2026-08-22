@@ -1,7 +1,7 @@
 import "server-only";
 import { serverEnv } from "@/lib/env";
 import { fetchJson, type ProviderResult } from "@/lib/services/http";
-import type { HolderEntry, TokenMetadata, TokenPrice } from "@/lib/services/types";
+import type { HolderEntry, TokenMetadata, TokenPrice, TokenSocials } from "@/lib/services/types";
 
 /**
  * Moralis Web3 Data API — Ethereum Mainnet only (chain=eth), matching V1
@@ -38,6 +38,14 @@ interface MoralisMetadataItem {
   logo?: string;
   thumbnail?: string;
   total_supply?: string;
+  // Social/marketing fields aren't consistently documented across Moralis
+  // API versions — every possible shape we've seen mentioned is checked
+  // defensively in getTokenSocials below, and absence of any of them is
+  // completely normal, not an error.
+  links?: { website?: string; twitter?: string; telegram?: string };
+  website?: string;
+  twitter?: string;
+  telegram?: string;
 }
 
 export async function getTokenMetadata(address: string): Promise<ProviderResult<TokenMetadata>> {
@@ -64,6 +72,33 @@ export async function getTokenMetadata(address: string): Promise<ProviderResult<
       totalSupplyRaw: item.total_supply ?? null,
     },
   };
+}
+
+/**
+ * Best-effort social links from the same metadata endpoint. Moralis doesn't
+ * consistently document these fields across versions/plans, so this is a
+ * defensive scan, not a guaranteed field — an empty result here is normal
+ * and just means the orchestrator falls back to DEXScreener.
+ */
+export async function getTokenSocials(address: string): Promise<ProviderResult<TokenSocials>> {
+  if (!isConfigured()) return { ok: false, reason: "not_configured" };
+
+  const url = `${BASE_URL}/erc20/metadata?chain=eth&addresses%5B0%5D=${address}`;
+  const result = await fetchJson<MoralisMetadataItem[]>(url, { headers: headers() });
+  if (!result.ok) return result;
+
+  const item = result.data[0];
+  if (!item) return { ok: false, reason: "not_found" };
+
+  const website = item.links?.website ?? item.website ?? null;
+  const twitter = item.links?.twitter ?? item.twitter ?? null;
+  const telegram = item.links?.telegram ?? item.telegram ?? null;
+
+  if (!website && !twitter && !telegram) {
+    return { ok: false, reason: "not_found" };
+  }
+
+  return { ok: true, data: { website, twitter, telegram } };
 }
 
 interface MoralisPriceResponse {

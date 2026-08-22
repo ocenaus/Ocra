@@ -191,4 +191,74 @@ describe("etherscan client", () => {
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.data).toBe("1000000000000000000000000");
   });
+
+  it("getContractCreator parses the deployer address and normalizes it to lowercase", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          status: "1",
+          message: "OK",
+          result: [
+            {
+              contractAddress: ADDRESS,
+              contractCreator: "0xABCDEF0123456789ABCDEF0123456789ABCDEF01",
+              txHash: "0xdeadbeef",
+            },
+          ],
+        }),
+        { status: 200 },
+      ),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { getContractCreator } = await loadClient();
+    const result = await getContractCreator(ADDRESS);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data).toBe("0xabcdef0123456789abcdef0123456789abcdef01");
+  });
+
+  it("getContractCreator uses the V2 endpoint with the getcontractcreation action", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({ status: "1", message: "OK", result: [{ contractCreator: "0x1111111111111111111111111111111111111111" }] }),
+        { status: 200 },
+      ),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { getContractCreator } = await loadClient();
+    await getContractCreator(ADDRESS);
+
+    const calledUrl = fetchMock.mock.calls[0][0] as string;
+    expect(calledUrl).toContain("action=getcontractcreation");
+    expect(calledUrl).toContain("chainid=1");
+  });
+
+  it("getContractCreator treats a NOTOK response as a real failure, not not_found", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ status: "0", message: "NOTOK", result: "Invalid API Key" }), { status: 200 }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { getContractCreator } = await loadClient();
+    const result = await getContractCreator(ADDRESS);
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.reason).not.toBe("not_found");
+  });
+
+  it("getContractCreator returns not_configured without calling fetch when no key is set", async () => {
+    vi.unstubAllEnvs();
+    vi.stubEnv("ETHERSCAN_API_KEY", "");
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { getContractCreator } = await loadClient();
+    const result = await getContractCreator(ADDRESS);
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.reason).toBe("not_configured");
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
 });

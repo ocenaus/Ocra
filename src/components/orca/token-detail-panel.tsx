@@ -1,6 +1,8 @@
 import { AlertTriangle, CheckCircle2, HelpCircle, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { QuickLinks } from "@/components/orca/quick-links";
+import { SocialLinks } from "@/components/orca/social-links";
 import type { TokenDetails } from "@/lib/services/types";
 import { formatUsd, shortenAddress } from "@/lib/format";
 
@@ -48,13 +50,17 @@ export function TokenDetailPanel({
             </p>
           </div>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-          <Stat label="Price" value={formatUsd(price.usdPrice)} />
-          <Stat label="Market cap (est.)" value={formatUsd(details.marketCapUsd)} />
-          <Stat
-            label="Top holders shown"
-            value={totalHoldersShown !== null ? String(totalHoldersShown) : "Data unavailable"}
-          />
+        <CardContent className="flex flex-col gap-4">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+            <Stat label="Price" value={formatUsd(price.usdPrice)} />
+            <Stat label="Market cap (est.)" value={formatUsd(details.marketCapUsd)} />
+            <Stat
+              label="Top holders shown"
+              value={totalHoldersShown !== null ? String(totalHoldersShown) : "Data unavailable"}
+            />
+          </div>
+          <QuickLinks address={details.address} />
+          <SocialLinks socials={details.socials} />
         </CardContent>
       </Card>
 
@@ -99,6 +105,12 @@ export function TokenDetailPanel({
                 <p className="font-mono text-sm text-foreground">
                   {shortenAddress(contract.implementationAddress)}
                 </p>
+              </div>
+            )}
+            {contract.creatorAddress && (
+              <div>
+                <p className="text-xs tracking-wide text-muted-foreground uppercase">Contract creator</p>
+                <p className="font-mono text-sm text-foreground">{shortenAddress(contract.creatorAddress)}</p>
               </div>
             )}
           </div>

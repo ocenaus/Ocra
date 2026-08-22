@@ -97,6 +97,42 @@ export async function getContractSource(address: string): Promise<ProviderResult
   };
 }
 
+interface EtherscanCreationResult {
+  contractAddress?: string;
+  contractCreator?: string;
+  txHash?: string;
+}
+
+interface EtherscanCreationResponse {
+  status?: string;
+  message?: string;
+  result?: EtherscanCreationResult[] | string;
+}
+
+/**
+ * The address that deployed the contract. Works for verified and
+ * unverified contracts alike (it's from the creation transaction, not the
+ * source), but is NOT necessarily "the team" — a launchpad/factory
+ * contract commonly shows up here instead of an individual wallet. Callers
+ * must label this as "contract creator", never "dev wallet".
+ */
+export async function getContractCreator(address: string): Promise<ProviderResult<string>> {
+  if (!isConfigured()) return { ok: false, reason: "not_configured" };
+
+  const url = `${BASE_URL}?chainid=${CHAIN_ID}&module=contract&action=getcontractcreation&contractaddresses=${address}&apikey=${serverEnv.ETHERSCAN_API_KEY}`;
+  const result = await fetchJson<EtherscanCreationResponse>(url);
+  if (!result.ok) return result;
+
+  if (result.data.message === "NOTOK") {
+    return classifyApiError(result.data.message, typeof result.data.result === "string" ? result.data.result : undefined);
+  }
+
+  const entry = Array.isArray(result.data.result) ? result.data.result[0] : undefined;
+  if (!entry?.contractCreator) return { ok: false, reason: "not_found" };
+
+  return { ok: true, data: entry.contractCreator.toLowerCase() };
+}
+
 interface EtherscanSupplyResponse {
   status?: string;
   message?: string;

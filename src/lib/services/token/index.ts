@@ -2,9 +2,17 @@ import "server-only";
 import * as moralis from "@/lib/services/moralis/client";
 import * as alchemy from "@/lib/services/alchemy/client";
 import * as etherscan from "@/lib/services/etherscan/client";
+import * as dexscreener from "@/lib/services/dexscreener/client";
 import { analyzeCapabilities } from "@/lib/services/etherscan/capabilities";
 import { computeMarketCapUsd, computePercentageOfSupply } from "@/lib/services/token/math";
-import type { ContractAnalysis, HolderEntry, TokenDetails, TokenMetadata, TokenPrice } from "@/lib/services/types";
+import type {
+  ContractAnalysis,
+  HolderEntry,
+  TokenDetails,
+  TokenMetadata,
+  TokenPrice,
+  TokenSocials,
+} from "@/lib/services/types";
 
 const DEFAULT_HOLDER_LIMIT = 100;
 
@@ -86,15 +94,22 @@ async function resolveContractAnalysis(address: string): Promise<{ contract: Con
         hasBlacklistFunction: null,
         isProxy: null,
         implementationAddress: null,
+        creatorAddress: null,
       },
       gaps,
     };
   }
 
-  const ownerCall = await alchemy.getContractOwner(address);
+  const [ownerCall, creatorCall] = await Promise.all([
+    alchemy.getContractOwner(address),
+    etherscan.getContractCreator(address),
+  ]);
   if (!ownerCall.ok) {
     gaps.push("Owner address could not be read on-chain — the contract may not expose a standard owner() function.");
   }
+  // Creator lookup failing isn't pushed as a gap — the creator-highlight
+  // feature simply doesn't activate, which is self-evident in the UI.
+  const creatorAddress = creatorCall.ok ? creatorCall.data : null;
 
   if (!source.data.isVerified) {
     return {
@@ -109,6 +124,7 @@ async function resolveContractAnalysis(address: string): Promise<{ contract: Con
         hasBlacklistFunction: null,
         isProxy: source.data.isProxy,
         implementationAddress: source.data.implementationAddress,
+        creatorAddress,
       },
       gaps: [...gaps, "Contract is not verified on Etherscan — mint/burn/pause/blacklist capabilities can't be confirmed."],
     };
@@ -128,14 +144,42 @@ async function resolveContractAnalysis(address: string): Promise<{ contract: Con
       hasBlacklistFunction: capabilities.hasBlacklistFunction,
       isProxy: source.data.isProxy,
       implementationAddress: source.data.implementationAddress,
+      creatorAddress,
     },
     gaps,
   };
 }
 
+/**
+ * Merges social links across providers, preferring Moralis (when it has
+ * them) and filling gaps from DEXScreener. Absence of any link is normal
+ * (not every token has a Telegram, etc.) so this never contributes to
+ * dataGaps — the UI just hides whichever icons don't resolve.
+ */
+async function resolveSocials(address: string): Promise<TokenSocials> {
+  const [moralisResult, dexscreenerResult] = await Promise.all([
+    moralis.getTokenSocials(address),
+    dexscreener.getTokenSocials(address),
+  ]);
+
+  const fromMoralis = moralisResult.ok ? moralisResult.data : null;
+  const fromDexscreener = dexscreenerResult.ok ? dexscreenerResult.data : null;
+
+  return {
+    website: fromMoralis?.website ?? fromDexscreener?.website ?? null,
+    telegram: fromMoralis?.telegram ?? fromDexscreener?.telegram ?? null,
+    twitter: fromMoralis?.twitter ?? fromDexscreener?.twitter ?? null,
+  };
+}
+
 export async function getTokenDetails(address: string): Promise<TokenDetails> {
-  const [{ metadata, gaps: metadataGaps }, { price, gaps: priceGaps }, { contract, gaps: contractGaps }] =
-    await Promise.all([resolveMetadata(address), resolvePrice(address), resolveContractAnalysis(address)]);
+  const [{ metadata, gaps: metadataGaps }, { price, gaps: priceGaps }, { contract, gaps: contractGaps }, socials] =
+    await Promise.all([
+      resolveMetadata(address),
+      resolvePrice(address),
+      resolveContractAnalysis(address),
+      resolveSocials(address),
+    ]);
 
   const marketCapUsd = computeMarketCapUsd(price.usdPrice, metadata.totalSupplyRaw, metadata.decimals);
 
@@ -146,6 +190,7 @@ export async function getTokenDetails(address: string): Promise<TokenDetails> {
     marketCapUsd,
     totalHoldersCount: null, // populated by the holders endpoint, kept separate to avoid a second heavy call here
     contract,
+    socials,
     dataGaps: [...metadataGaps, ...priceGaps, ...contractGaps],
   };
 }

@@ -25,6 +25,20 @@ export interface ContractAnalysis {
   hasBlacklistFunction: boolean | null;
   isProxy: boolean | null;
   implementationAddress: string | null;
+  /**
+   * The address that deployed the contract, from Etherscan's contract
+   * creation record. Not necessarily "the team" — a factory/launchpad
+   * contract commonly appears here instead of an individual wallet, so the
+   * UI must label this factually ("Contract creator"), never as "dev wallet".
+   */
+  creatorAddress: string | null;
+}
+
+/** Social/marketing links for a token, when a data provider actually has them. */
+export interface TokenSocials {
+  website: string | null;
+  telegram: string | null;
+  twitter: string | null;
 }
 
 export interface HolderEntry {
@@ -45,6 +59,7 @@ export interface TokenDetails {
   marketCapUsd: number | null;
   totalHoldersCount: number | null;
   contract: ContractAnalysis;
+  socials: TokenSocials;
   /** Human-readable notes on what's unavailable and why, for honest display — never silently hidden. */
   dataGaps: string[];
 }

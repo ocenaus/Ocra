@@ -58,6 +58,49 @@ export function computePercentageOfSupply(
   }
 }
 
+/**
+ * Concentration thresholds used to label the holder insights section as a
+ * warning. These are an analytical heuristic ORCA chose, not a market
+ * standard or a guarantee of risk — the UI must say so explicitly.
+ */
+export const CONCENTRATION_THRESHOLDS = {
+  topHolderPct: 30,
+  top10Pct: 50,
+} as const;
+
+export interface HolderConcentration {
+  topHolderPct: number | null;
+  top10Pct: number | null;
+  topHolderExceedsThreshold: boolean;
+  top10ExceedsThreshold: boolean;
+}
+
+/**
+ * Summarizes concentration among the given holders (expected to already be
+ * sorted descending by balance, as every provider we use returns them).
+ * `top10Pct` is only computed when every one of the top 10 has a known
+ * percentage — a partial sum would understate concentration and could read
+ * as reassuring when it isn't.
+ */
+export function computeHolderConcentration(
+  holders: Array<{ percentageOfSupply: number | null }>,
+): HolderConcentration {
+  const topHolderPct = holders[0]?.percentageOfSupply ?? null;
+
+  const top10 = holders.slice(0, 10);
+  const top10HasCompleteData = top10.length > 0 && top10.every((h) => h.percentageOfSupply !== null);
+  const top10Pct = top10HasCompleteData
+    ? top10.reduce((sum, h) => sum + (h.percentageOfSupply ?? 0), 0)
+    : null;
+
+  return {
+    topHolderPct,
+    top10Pct,
+    topHolderExceedsThreshold: topHolderPct !== null && topHolderPct > CONCENTRATION_THRESHOLDS.topHolderPct,
+    top10ExceedsThreshold: top10Pct !== null && top10Pct > CONCENTRATION_THRESHOLDS.top10Pct,
+  };
+}
+
 const MIN_BUBBLE_RADIUS = 6;
 const MAX_BUBBLE_RADIUS = 90;
 

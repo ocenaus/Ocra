@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { NotConfiguredPanel } from "@/components/orca/not-configured";
 import { BubbleMap } from "@/components/orca/bubble-map";
+import { HolderInsights } from "@/components/orca/holder-insights";
 import { TokenDetailPanel } from "@/components/orca/token-detail-panel";
 import { isValidEthereumAddress, normalizeAddress } from "@/lib/validation/ethereum";
 import { getTokenDetails, getTokenHolders } from "@/lib/services/token";
@@ -54,23 +55,31 @@ export default async function TokenBubbleMapPage({ params }: Props) {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm tracking-widest text-muted-foreground uppercase">
-              Holder Bubble Map
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {holders.length > 0 ? (
-              <BubbleMap holders={holders} symbol={details.metadata.symbol} />
-            ) : (
-              <NotConfiguredPanel
-                title={holderGaps[0] ?? "No holder data available."}
-                description="ORCA never shows placeholder or fabricated holder positions — this panel stays empty until real data is available."
-              />
-            )}
-          </CardContent>
-        </Card>
+        <div className="flex flex-col gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm tracking-widest text-muted-foreground uppercase">
+                Holder Bubble Map
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {holders.length > 0 ? (
+                <BubbleMap
+                  holders={holders}
+                  symbol={details.metadata.symbol}
+                  creatorAddress={details.contract.creatorAddress}
+                />
+              ) : (
+                <NotConfiguredPanel
+                  title={holderGaps[0] ?? "No holder data available."}
+                  description="ORCA never shows placeholder or fabricated holder positions — this panel stays empty until real data is available."
+                />
+              )}
+            </CardContent>
+          </Card>
+
+          <HolderInsights holders={holders} />
+        </div>
 
         <TokenDetailPanel details={details} totalHoldersShown={holders.length > 0 ? holders.length : null} />
       </div>

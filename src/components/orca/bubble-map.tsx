@@ -11,12 +11,22 @@ interface BubbleNode extends SimulationNodeDatum {
   id: string;
   holder: HolderEntry;
   radius: number;
+  isCreator: boolean;
 }
 
 const WIDTH = 720;
 const HEIGHT = 480;
 
-export function BubbleMap({ holders, symbol }: { holders: HolderEntry[]; symbol: string | null }) {
+export function BubbleMap({
+  holders,
+  symbol,
+  creatorAddress,
+}: {
+  holders: HolderEntry[];
+  symbol: string | null;
+  /** From Etherscan's contract creation record — highlighted only if it's among the current top holders. Never guessed. */
+  creatorAddress?: string | null;
+}) {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [hovered, setHovered] = useState<BubbleNode | null>(null);
   const [pointer, setPointer] = useState<{ x: number; y: number } | null>(null);
@@ -24,11 +34,13 @@ export function BubbleMap({ holders, symbol }: { holders: HolderEntry[]; symbol:
   useEffect(() => {
     if (!svgRef.current || holders.length === 0) return;
 
+    const normalizedCreator = creatorAddress?.toLowerCase() ?? null;
     const radii = computeBubbleRadii(holders.map((h) => h.percentageOfSupply));
     const nodes: BubbleNode[] = holders.map((holder, i) => ({
       id: holder.address,
       holder,
       radius: radii[i],
+      isCreator: normalizedCreator !== null && holder.address.toLowerCase() === normalizedCreator,
       x: WIDTH / 2 + (Math.random() - 0.5) * 40,
       y: HEIGHT / 2 + (Math.random() - 0.5) * 40,
     }));
@@ -37,23 +49,28 @@ export function BubbleMap({ holders, symbol }: { holders: HolderEntry[]; symbol:
     svg.selectAll("*").remove();
 
     const defs = svg.append("defs");
-    const gradient = defs
+
+    const glowGradient = defs.append("radialGradient").attr("id", "bubble-glow").attr("cx", "35%").attr("cy", "35%");
+    glowGradient.append("stop").attr("offset", "0%").attr("stop-color", "var(--color-primary)").attr("stop-opacity", 0.9);
+    glowGradient.append("stop").attr("offset", "100%").attr("stop-color", "var(--color-primary)").attr("stop-opacity", 0.25);
+
+    const creatorGradient = defs
       .append("radialGradient")
-      .attr("id", "bubble-glow")
+      .attr("id", "bubble-glow-creator")
       .attr("cx", "35%")
       .attr("cy", "35%");
-    gradient.append("stop").attr("offset", "0%").attr("stop-color", "var(--color-primary)").attr("stop-opacity", 0.9);
-    gradient.append("stop").attr("offset", "100%").attr("stop-color", "var(--color-primary)").attr("stop-opacity", 0.25);
+    creatorGradient.append("stop").attr("offset", "0%").attr("stop-color", "var(--color-warning)").attr("stop-opacity", 0.9);
+    creatorGradient.append("stop").attr("offset", "100%").attr("stop-color", "var(--color-warning)").attr("stop-opacity", 0.3);
 
     const circles = svg
       .selectAll<SVGCircleElement, BubbleNode>("circle")
       .data(nodes, (d) => d.id)
       .join("circle")
       .attr("r", (d) => d.radius)
-      .attr("fill", "url(#bubble-glow)")
-      .attr("stroke", "var(--color-primary)")
-      .attr("stroke-opacity", 0.5)
-      .attr("stroke-width", 1)
+      .attr("fill", (d) => (d.isCreator ? "url(#bubble-glow-creator)" : "url(#bubble-glow)"))
+      .attr("stroke", (d) => (d.isCreator ? "var(--color-warning)" : "var(--color-primary)"))
+      .attr("stroke-opacity", (d) => (d.isCreator ? 0.9 : 0.5))
+      .attr("stroke-width", (d) => (d.isCreator ? 2 : 1))
       .style("cursor", "pointer")
       .on("mouseenter", (_event, d) => setHovered(d))
       .on("mousemove", (event) => {
@@ -79,7 +96,7 @@ export function BubbleMap({ holders, symbol }: { holders: HolderEntry[]; symbol:
     return () => {
       simulation.stop();
     };
-  }, [holders]);
+  }, [holders, creatorAddress]);
 
   if (holders.length === 0) {
     return null;
@@ -105,6 +122,7 @@ export function BubbleMap({ holders, symbol }: { holders: HolderEntry[]; symbol:
             {formatPercentage(hovered.holder.percentageOfSupply)} of supply
             {symbol ? ` · ${symbol}` : ""}
           </p>
+          {hovered.isCreator && <p className="mt-1 font-medium text-warning">Contract creator</p>}
         </div>
       )}
     </div>
