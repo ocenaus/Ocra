@@ -104,6 +104,14 @@
       opacity: 0;
     }
   }
+
+  /* Volume-currents stream flow: a moving dash pattern along each SVG path,
+     suggesting current direction without a physics simulation. */
+  @keyframes stream-flow {
+    to {
+      stroke-dashoffset: -24;
+    }
+  }
 }
 
 * {

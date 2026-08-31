@@ -121,3 +121,25 @@ export function computeBubbleRadii(
 
   return percentages.map((p) => (p === null ? minRadius : scale(p)));
 }
+
+const MIN_STREAM_WIDTH = 3;
+const MAX_STREAM_WIDTH = 28;
+
+/**
+ * Maps 24h volumes to stroke widths for the volume-currents visualization,
+ * sqrt-scaled for the same reason as bubble radii: it's the *area* of a
+ * flowing stream that should read as proportional to volume, not its raw
+ * width. A minimum floor keeps the smallest pair visible as a real (if
+ * thin) current rather than disappearing.
+ */
+export function computeStreamWidths(
+  volumes: number[],
+  { minWidth = MIN_STREAM_WIDTH, maxWidth = MAX_STREAM_WIDTH } = {},
+): number[] {
+  const positive = volumes.filter((v) => v > 0);
+  const max = positive.length > 0 ? Math.max(...positive) : 1;
+
+  const scale = scaleSqrt().domain([0, max]).range([minWidth, maxWidth]).clamp(true);
+
+  return volumes.map((v) => (v > 0 ? scale(v) : minWidth));
+}

@@ -3,11 +3,13 @@ import * as moralis from "@/lib/services/moralis/client";
 import * as alchemy from "@/lib/services/alchemy/client";
 import * as etherscan from "@/lib/services/etherscan/client";
 import * as dexscreener from "@/lib/services/dexscreener/client";
+import * as coingecko from "@/lib/services/coingecko/client";
 import { analyzeCapabilities } from "@/lib/services/etherscan/capabilities";
 import { computeMarketCapUsd, computePercentageOfSupply } from "@/lib/services/token/math";
 import type {
   ContractAnalysis,
   HolderEntry,
+  PairVolume,
   TokenDetails,
   TokenMetadata,
   TokenPrice,
@@ -15,6 +17,7 @@ import type {
 } from "@/lib/services/types";
 
 const DEFAULT_HOLDER_LIMIT = 100;
+const MAX_COMBINED_VOLUME_STREAMS = 8;
 
 async function resolveMetadata(address: string): Promise<{ metadata: TokenMetadata; gaps: string[] }> {
   const gaps: string[] = [];
@@ -155,31 +158,52 @@ async function resolveContractAnalysis(address: string): Promise<{ contract: Con
  * them) and filling gaps from DEXScreener. Absence of any link is normal
  * (not every token has a Telegram, etc.) so this never contributes to
  * dataGaps — the UI just hides whichever icons don't resolve.
+ *
+ * Also resolves the volume-currents breakdown alongside it: DEXScreener's
+ * pairs response already carries both, so this is one DEXScreener fetch
+ * (via `dexscreener.getMarketData`) plus one CoinGecko fetch for CEX
+ * tickers, run in parallel. Absence of volume data is likewise normal (an
+ * illiquid or unindexed token) and not reported as a gap — the UI shows an
+ * honest empty state instead.
  */
-async function resolveSocials(address: string): Promise<TokenSocials> {
-  const [moralisResult, dexscreenerResult] = await Promise.all([
+async function resolveMarketActivity(
+  address: string,
+): Promise<{ socials: TokenSocials; volumeBreakdown: PairVolume[] }> {
+  const [moralisResult, dexscreenerResult, coingeckoResult] = await Promise.all([
     moralis.getTokenSocials(address),
-    dexscreener.getTokenSocials(address),
+    dexscreener.getMarketData(address),
+    coingecko.getCexTickers(address),
   ]);
 
   const fromMoralis = moralisResult.ok ? moralisResult.data : null;
-  const fromDexscreener = dexscreenerResult.ok ? dexscreenerResult.data : null;
+  const dexMarketData = dexscreenerResult.ok ? dexscreenerResult.data : null;
+  const cexVolume = coingeckoResult.ok ? coingeckoResult.data : [];
 
-  return {
-    website: fromMoralis?.website ?? fromDexscreener?.website ?? null,
-    telegram: fromMoralis?.telegram ?? fromDexscreener?.telegram ?? null,
-    twitter: fromMoralis?.twitter ?? fromDexscreener?.twitter ?? null,
+  const socials: TokenSocials = {
+    website: fromMoralis?.website ?? dexMarketData?.socials.website ?? null,
+    telegram: fromMoralis?.telegram ?? dexMarketData?.socials.telegram ?? null,
+    twitter: fromMoralis?.twitter ?? dexMarketData?.socials.twitter ?? null,
   };
+
+  const volumeBreakdown = [...(dexMarketData?.dexVolume ?? []), ...cexVolume]
+    .sort((a, b) => b.volumeUsd24h - a.volumeUsd24h)
+    .slice(0, MAX_COMBINED_VOLUME_STREAMS);
+
+  return { socials, volumeBreakdown };
 }
 
 export async function getTokenDetails(address: string): Promise<TokenDetails> {
-  const [{ metadata, gaps: metadataGaps }, { price, gaps: priceGaps }, { contract, gaps: contractGaps }, socials] =
-    await Promise.all([
-      resolveMetadata(address),
-      resolvePrice(address),
-      resolveContractAnalysis(address),
-      resolveSocials(address),
-    ]);
+  const [
+    { metadata, gaps: metadataGaps },
+    { price, gaps: priceGaps },
+    { contract, gaps: contractGaps },
+    { socials, volumeBreakdown },
+  ] = await Promise.all([
+    resolveMetadata(address),
+    resolvePrice(address),
+    resolveContractAnalysis(address),
+    resolveMarketActivity(address),
+  ]);
 
   const marketCapUsd = computeMarketCapUsd(price.usdPrice, metadata.totalSupplyRaw, metadata.decimals);
 
@@ -191,6 +215,7 @@ export async function getTokenDetails(address: string): Promise<TokenDetails> {
     totalHoldersCount: null, // populated by the holders endpoint, kept separate to avoid a second heavy call here
     contract,
     socials,
+    volumeBreakdown,
     dataGaps: [...metadataGaps, ...priceGaps, ...contractGaps],
   };
 }

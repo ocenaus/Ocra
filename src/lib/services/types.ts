@@ -41,6 +41,25 @@ export interface TokenSocials {
   twitter: string | null;
 }
 
+/**
+ * 24h trading volume for a single DEX pair (DEXScreener) or CEX listing
+ * (CoinGecko tickers). CEX tickers carry no buy/sell breakdown — neither
+ * provider exposes centralized order-flow composition — so `buyTxns24h`/
+ * `sellTxns24h` are always null for `source: "cex"`, never estimated.
+ */
+export interface PairVolume {
+  source: "dex" | "cex";
+  /** DEXScreener `dexId` (e.g. "uniswap") or CoinGecko `market.identifier` (e.g. "binance"). */
+  exchangeId: string;
+  /** Human-readable, e.g. "Uniswap V3" or "Binance". */
+  label: string;
+  volumeUsd24h: number;
+  /** Real transaction counts from DEXScreener, DEX pairs only. Never fabricated for CEX. */
+  buyTxns24h: number | null;
+  sellTxns24h: number | null;
+  pairUrl: string | null;
+}
+
 export interface HolderEntry {
   address: string;
   /** Raw base-unit balance as a decimal string. */
@@ -60,6 +79,13 @@ export interface TokenDetails {
   totalHoldersCount: number | null;
   contract: ContractAnalysis;
   socials: TokenSocials;
+  /**
+   * Top pairs/listings by 24h volume, DEX and CEX combined, sorted
+   * descending. Empty when neither provider has the token indexed — a
+   * normal state for illiquid/unlisted tokens, not a reported gap (same
+   * treatment as `socials`).
+   */
+  volumeBreakdown: PairVolume[];
   /** Human-readable notes on what's unavailable and why, for honest display — never silently hidden. */
   dataGaps: string[];
 }

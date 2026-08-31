@@ -3,6 +3,7 @@ import {
   computeBubbleRadii,
   computeMarketCapUsd,
   computePercentageOfSupply,
+  computeStreamWidths,
   rawToDecimal,
 } from "@/lib/services/token/math";
 
@@ -82,5 +83,27 @@ describe("computeBubbleRadii", () => {
   it("clamps the largest holder to the max radius", () => {
     const radii = computeBubbleRadii([100], { minRadius: 6, maxRadius: 90 });
     expect(radii[0]).toBe(90);
+  });
+});
+
+describe("computeStreamWidths", () => {
+  it("scales widths by volume with area (not width) proportional to value", () => {
+    const widths = computeStreamWidths([100, 25], { minWidth: 0, maxWidth: 100 });
+    expect(widths[0] / widths[1]).toBeCloseTo(2, 1);
+  });
+
+  it("assigns the minimum width to a zero-volume pair", () => {
+    const widths = computeStreamWidths([500, 0], { minWidth: 3, maxWidth: 28 });
+    expect(widths[1]).toBe(3);
+  });
+
+  it("handles a single pair without throwing", () => {
+    const widths = computeStreamWidths([12345], { minWidth: 3, maxWidth: 28 });
+    expect(widths[0]).toBe(28);
+  });
+
+  it("clamps the largest volume to the max width", () => {
+    const widths = computeStreamWidths([100], { minWidth: 3, maxWidth: 28 });
+    expect(widths[0]).toBe(28);
   });
 });

@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { AlertTriangle, ExternalLink, Waypoints } from "lucide-react";
+import { Activity, AlertTriangle, ExternalLink, Waypoints } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { XpWindow } from "@/components/xp/xp-window";
 import { NotConfiguredPanel } from "@/components/orca/not-configured";
 import { BubbleMap } from "@/components/orca/bubble-map";
+import { VolumeStreams } from "@/components/orca/volume-streams";
 import { HolderInsights } from "@/components/orca/holder-insights";
 import { TokenDetailPanel } from "@/components/orca/token-detail-panel";
 import { isValidEthereumAddress, normalizeAddress } from "@/lib/validation/ethereum";
@@ -79,6 +80,23 @@ export default async function TokenBubbleMapPage({ params }: Props) {
         </div>
 
         <TokenDetailPanel details={details} totalHoldersShown={holders.length > 0 ? holders.length : null} />
+      </div>
+
+      <div className="mt-6">
+        <XpWindow
+          title="Trading Currents"
+          icon={<Activity className="size-4 text-white" aria-hidden="true" />}
+          contentClassName="bg-[var(--xp-chrome)] p-2"
+        >
+          {details.volumeBreakdown.length > 0 ? (
+            <VolumeStreams pairs={details.volumeBreakdown} symbol={details.metadata.symbol} />
+          ) : (
+            <NotConfiguredPanel
+              title="No trading volume data available"
+              description="ORCA only shows real DEX and CEX volume reported by DEXScreener and CoinGecko — this panel stays empty until real trading activity is indexed for this token."
+            />
+          )}
+        </XpWindow>
       </div>
     </div>
   );
