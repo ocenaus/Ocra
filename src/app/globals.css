@@ -112,6 +112,20 @@
       stroke-dashoffset: -24;
     }
   }
+
+  /* Gentle vertical sway applied to a whole stream group (path + label),
+     phase- and duration-offset per stream — an ocean-current undulation
+     layered on top of the dash-offset flow, without animating the path's
+     own geometry. */
+  @keyframes stream-bob {
+    0%,
+    100% {
+      transform: translateY(-2.5px);
+    }
+    50% {
+      transform: translateY(2.5px);
+    }
+  }
 }
 
 * {
