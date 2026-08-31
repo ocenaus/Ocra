@@ -121,7 +121,12 @@ export function TokenDetailPanel({
             </div>
           </div>
 
-          <MascotSlot label="Mascot artwork pending" tone="dark" className="hidden h-32 w-24 shrink-0 sm:flex" />
+          <MascotSlot
+            label="Mascot artwork pending"
+            tone="dark"
+            src="/mascot-contract.png"
+            className="hidden h-32 w-24 shrink-0 sm:flex"
+          />
         </div>
       </XpWindow>
 
@@ -137,11 +142,6 @@ export function TokenDetailPanel({
           </CardContent>
         </Card>
       )}
-
-      <p className="text-xs text-muted-foreground">
-        Contract capability flags are derived from a text scan of verified source code and are an
-        analytical signal, not a guarantee — always verify independently before trusting a contract.
-      </p>
     </div>
   );
 }

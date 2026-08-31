@@ -33,6 +33,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <div className="xp-desktop fixed inset-0 -z-10 overflow-hidden" aria-hidden="true" />
         <MascotSlot
           label="Mascot artwork pending — full-body orca on the grass"
+          src="/mascot-full.png"
           className="pointer-events-none fixed bottom-20 left-8 hidden h-56 w-32 2xl:flex"
         />
 

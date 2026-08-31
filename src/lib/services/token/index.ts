@@ -103,15 +103,14 @@ async function resolveContractAnalysis(address: string): Promise<{ contract: Con
     };
   }
 
+  // Neither an owner() nor a creator lookup failure is pushed as a gap —
+  // both simply don't populate their respective UI fields, which is
+  // self-evident ("Data unavailable" / no creator badge) without a
+  // separate notice.
   const [ownerCall, creatorCall] = await Promise.all([
     alchemy.getContractOwner(address),
     etherscan.getContractCreator(address),
   ]);
-  if (!ownerCall.ok) {
-    gaps.push("Owner address could not be read on-chain — the contract may not expose a standard owner() function.");
-  }
-  // Creator lookup failing isn't pushed as a gap — the creator-highlight
-  // feature simply doesn't activate, which is self-evident in the UI.
   const creatorAddress = creatorCall.ok ? creatorCall.data : null;
 
   if (!source.data.isVerified) {

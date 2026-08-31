@@ -77,26 +77,24 @@ export default async function TokenBubbleMapPage({ params }: Props) {
           </XpWindow>
 
           <HolderInsights holders={holders} />
+
+          <XpWindow
+            title="Trading Currents"
+            icon={<Activity className="size-4 text-white" aria-hidden="true" />}
+            contentClassName="bg-[var(--xp-chrome)] p-2"
+          >
+            {details.volumeBreakdown.length > 0 ? (
+              <VolumeStreams pairs={details.volumeBreakdown} symbol={details.metadata.symbol} />
+            ) : (
+              <NotConfiguredPanel
+                title="No trading volume data available"
+                description="ORCA only shows real DEX and CEX volume reported by DEXScreener and CoinGecko — this panel stays empty until real trading activity is indexed for this token."
+              />
+            )}
+          </XpWindow>
         </div>
 
         <TokenDetailPanel details={details} totalHoldersShown={holders.length > 0 ? holders.length : null} />
-      </div>
-
-      <div className="mt-6">
-        <XpWindow
-          title="Trading Currents"
-          icon={<Activity className="size-4 text-white" aria-hidden="true" />}
-          contentClassName="bg-[var(--xp-chrome)] p-2"
-        >
-          {details.volumeBreakdown.length > 0 ? (
-            <VolumeStreams pairs={details.volumeBreakdown} symbol={details.metadata.symbol} />
-          ) : (
-            <NotConfiguredPanel
-              title="No trading volume data available"
-              description="ORCA only shows real DEX and CEX volume reported by DEXScreener and CoinGecko — this panel stays empty until real trading activity is indexed for this token."
-            />
-          )}
-        </XpWindow>
       </div>
     </div>
   );
